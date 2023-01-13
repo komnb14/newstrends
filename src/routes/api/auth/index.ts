@@ -1,26 +1,27 @@
 import { FastifyPluginAsync } from 'fastify';
 import UserService from '../../../service/UserService.js';
 import { loginSchema, registerSchema } from './schema.js';
+import { AuthBody } from './types.js';
 
 const authRoute: FastifyPluginAsync = async (fastify) => {
   const userService = UserService.getInstance();
-  fastify.post(
+  fastify.post<{ Body: AuthBody }>(
     '/login',
     {
       schema: loginSchema,
     },
-    async () => {
-      return userService.login();
+    async (fastify) => {
+      return userService.login(fastify.body);
     },
   );
 
-  fastify.post(
+  fastify.post<{ Body: AuthBody }>(
     '/register',
     {
       schema: registerSchema,
     },
-    async () => {
-      return userService.register();
+    async (fastify) => {
+      return await userService.register(fastify.body);
     },
   );
 };
